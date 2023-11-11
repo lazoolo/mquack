@@ -6,6 +6,8 @@ class MqttManager {
   final String serverAddress;
   final String clientId;
   final Function(bool) onConnectionChanged;
+  final Function(String) onMessageReceived;
+
   MqttServerClient? client;
 
   final _logger = Logger('MqttManager');
@@ -14,6 +16,7 @@ class MqttManager {
     required this.serverAddress,
     required this.clientId,
     required this.onConnectionChanged,
+    required this.onMessageReceived,
   });
 
   Future<MqttServerClient> connectToBroker() async {
@@ -34,13 +37,7 @@ class MqttManager {
     if (client!.connectionStatus!.state == MqttConnectionState.connected) {
       _logger.info('MQTT client connected');
       // Set the callback for when a message is received
-      client!.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-        final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
-        final String pt =
-            MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-
-        _logger.info('Received message: $pt from topic: ${c[0].topic}');
-      });
+      setupMessageListener(); // Use setupMessageListener here
     } else {
       _logger.info('ERROR: MQTT client connection failed - '
           'disconnecting, state is ${client!.connectionStatus!.state}');
@@ -48,6 +45,17 @@ class MqttManager {
     }
 
     return client!;
+  }
+
+  void setupMessageListener() {
+    client?.updates?.listen((List<MqttReceivedMessage<MqttMessage>> c) {
+      final MqttPublishMessage recMess = c[0].payload as MqttPublishMessage;
+      final String newMessage =
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
+
+      // Call the callback
+      onMessageReceived(newMessage);
+    });
   }
 
   void disconnect() {

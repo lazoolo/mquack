@@ -61,6 +61,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   MqttManager? mqttManager;
   int _counter = 0;
+  String _message = 'HI WORLD';
 
   void _incrementCounter() {
     setState(() {
@@ -79,8 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have JAKED the button this many times:',
+            Text(
+              _message,
             ),
             Text(
               '$_counter',
@@ -98,6 +99,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     onConnectionChanged: (connected) {
                       Provider.of<ConnectionState>(context, listen: false)
                           .connected = connected;
+                    },
+                    onMessageReceived: (message) {
+                      setState(() {
+                        _message = message;
+                      });
                     },
                   );
                   mqttManager?.connectToBroker();
