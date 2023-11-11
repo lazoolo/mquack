@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'mQuack Connections'),
+      home: const MyHomePage(title: 'Connections'),
     );
   }
 }
