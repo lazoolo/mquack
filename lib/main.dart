@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'mquacktt.dart';
+import 'messages.dart';
 import 'package:logging/logging.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   Logger.root.level =
@@ -23,6 +26,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    ScreenUtil.init(
+      context,
+      designSize: Size(360, 690),
+    );
     return MaterialApp(
       title: 'mQuack',
       theme: ThemeData(
@@ -41,7 +48,8 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 1, 47, 12)),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'Connections'),
@@ -60,13 +68,28 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MqttManager? mqttManager;
-  int _counter = 0;
   String _message = 'HI WORLD';
+  String _brokerAddress = '192.168.86.1'; // Default broker address
+  List<String> _messages = [];
+
+  final TextEditingController _brokerAddressController =
+      TextEditingController();
+
+  int _brokerPort = 1883; // Default broker port
+  final TextEditingController _brokerPortController = TextEditingController();
+
+  final TextEditingController _clientIdController = TextEditingController();
 
   void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _brokerAddressController.text = _brokerAddress;
+    _brokerPortController.text = _brokerPort.toString(); // Set the initial text
+    _clientIdController.text = 'mQuack'; // Set the default value for ClientID
   }
 
   @override
@@ -84,8 +107,17 @@ class _MyHomePageState extends State<MyHomePage> {
               _message,
             ),
             Text(
-              '$_counter',
+              '',
               style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            Wrap(
+              direction: Axis.horizontal,
+              alignment: WrapAlignment.center,
+              children: <Widget>[
+                _buildBrokerAddressField(),
+                _buildPortField(),
+                _buildClientIdField(), // Add this line
+              ],
             ),
             ElevatedButton(
               onPressed: () {
@@ -94,7 +126,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   mqttManager?.disconnect();
                 } else {
                   mqttManager = MqttManager(
-                    serverAddress: '192.168.86.2',
+                    serverAddress: _brokerAddress,
+                    serverPort: _brokerPort,
                     clientId: 'XXYYZZ',
                     onConnectionChanged: (connected) {
                       Provider.of<ConnectionState>(context, listen: false)
@@ -103,6 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onMessageReceived: (message) {
                       setState(() {
                         _message = message;
+                        _messages.add(message);
                       });
                     },
                   );
@@ -116,10 +150,94 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomAppBar(
+        child: Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.home),
+              onPressed: () {
+                // You're already on the main page, so no need to navigate
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.message),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MessageListPage(messages: _messages),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildBrokerAddressField() {
+    return Container(
+      width: 200.w, // Set your desired maximum width here.
+      child: Padding(
+        padding: EdgeInsets.all(8.0.w),
+        child: TextField(
+          controller: _brokerAddressController,
+          decoration: InputDecoration(
+            labelText: 'Broker Address',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            _brokerAddress = value;
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPortField() {
+    return Container(
+      width: 200.w, // Set your desired maximum width here.
+      child: Padding(
+        padding: EdgeInsets.all(8.0.w),
+        child: TextField(
+          controller: _brokerPortController,
+          decoration: InputDecoration(
+            labelText: 'Port',
+            border: OutlineInputBorder(),
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            FilteringTextInputFormatter.digitsOnly
+          ], // Only numbers can be entered
+          onChanged: (value) {
+            _brokerPort = int.tryParse(value) ?? 1883;
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClientIdField() {
+    return Container(
+      width: 200.w, // Set your desired maximum width here.
+      child: Padding(
+        padding: EdgeInsets.all(8.0.w),
+        child: TextField(
+          controller: _clientIdController,
+          decoration: InputDecoration(
+            labelText: 'Client ID',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            // Update your client ID here
+          },
+        ),
       ),
     );
   }

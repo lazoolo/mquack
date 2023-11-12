@@ -4,7 +4,8 @@ import 'package:logging/logging.dart';
 
 class MqttManager {
   final String serverAddress;
-  final String clientId;
+  String clientId;
+  int serverPort;
   final Function(bool) onConnectionChanged;
   final Function(String) onMessageReceived;
 
@@ -12,16 +13,17 @@ class MqttManager {
 
   final _logger = Logger('MqttManager');
 
-  MqttManager({
-    required this.serverAddress,
-    required this.clientId,
-    required this.onConnectionChanged,
-    required this.onMessageReceived,
-  });
+  MqttManager(
+      {required this.serverAddress,
+      required this.onConnectionChanged,
+      required this.onMessageReceived,
+      this.clientId = 'mQuack',
+      this.serverPort = 1883});
 
   Future<MqttServerClient> connectToBroker() async {
     client = MqttServerClient(serverAddress, clientId);
     client!.logging(on: false);
+    client!.port = serverPort;
     client!.keepAlivePeriod = 60;
     client!.onDisconnected = onDisconnected;
     client!.onConnected = onConnected;
