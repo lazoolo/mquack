@@ -1,18 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:logging/logging.dart';
 
 class MqttManager {
   List<String> _messages = [];
-  List<Function(String)> _messageCallbacks = [];
-  List<Function> _connectedCallbacks = [];
-  List<Function> _disconnectedCallbacks = [];
+  List<String> get messages => _messages;
+
+  final MessageManager messageManager = MessageManager();
+  final ConnectionManager connectionManager = ConnectionManager();
 
   MqttServerClient? client;
 
   final _logger = Logger('MqttManager');
-
-  MqttManager() {}
 
   Future<MqttServerClient> connectToBroker(String serverAddress, int serverPort,
       {String? clientId}) async {
@@ -51,49 +51,25 @@ class MqttManager {
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
       // Add the new message to _messages
-      _messages.add(newMessage);
+      messageManager.addMessage(newMessage);
 
       // Log the new message
       _logger.info('Received message: $newMessage');
-
-      // Call all registered callbacks
-      for (var callback in _messageCallbacks) {
-        callback(newMessage);
-      }
     });
   }
-
-  void registerMessageCallback(Function(String) callback) {
-    _messageCallbacks.add(callback);
-  }
-
-  List<String> get messages => _messages;
 
   void disconnect() {
     client?.disconnect();
   }
 
-  void registerConnectedCallback(Function callback) {
-    _connectedCallbacks.add(callback);
-  }
-
-  void registerDisconnectedCallback(Function callback) {
-    _disconnectedCallbacks.add(callback);
-  }
-
   void onDisconnected() {
-    for (var callback in _disconnectedCallbacks) {
-      callback();
-    }
+    connectionManager.onDisconnected();
 
     _logger.info('MQTT client disconnected');
   }
 
   void onConnected() {
-    for (var callback in _connectedCallbacks) {
-      callback();
-    }
-    ;
+    connectionManager.onConnected();
     _logger.info('MQTT client connected');
     subscribeToAllTopics();
   }
@@ -105,5 +81,32 @@ class MqttManager {
   Future<void> subscribeToAllTopics() async {
     _logger.info('Subscribing to all topics');
     client!.subscribe('#', MqttQos.atMostOnce);
+  }
+}
+
+class MessageManager with ChangeNotifier {
+  List<String> _messages = [];
+
+  List<String> get messages => _messages;
+
+  void addMessage(String message) {
+    _messages.add(message);
+    notifyListeners(); // Notify all listeners about the update
+  }
+}
+
+class ConnectionManager with ChangeNotifier {
+  bool _connected = false;
+
+  bool get connected => _connected;
+
+  void onConnected() {
+    _connected = true;
+    notifyListeners();
+  }
+
+  void onDisconnected() {
+    _connected = false;
+    notifyListeners();
   }
 }

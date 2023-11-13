@@ -18,36 +18,40 @@ class _MessageListPageState extends State<MessageListPage> {
   }
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('MQTT Messages'),
-      ),
-      body: ListView.builder(
-        itemCount: mqttManager?.messages.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(mqttManager?.messages[index] ?? ''),
-          );
-        },
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.home),
-              onPressed: () {
-                Navigator.pop(context); // Go back to the main page
-              },
+    return Consumer<MessageManager>(
+      builder: (context, mqttManager, child) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('MQTT Messages'),
+          ),
+          body: ListView.builder(
+            itemCount: mqttManager.messages.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(mqttManager.messages[index]),
+              );
+            },
+          ),
+          bottomNavigationBar: BottomAppBar(
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.home),
+                  onPressed: () {
+                    Navigator.pop(context); // Go back to the main page
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.message),
+                  onPressed: () {
+                    // You're already on the messages page, so no need to navigate
+                  },
+                ),
+              ],
             ),
-            IconButton(
-              icon: Icon(Icons.message),
-              onPressed: () {
-                // You're already on the messages page, so no need to navigate
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

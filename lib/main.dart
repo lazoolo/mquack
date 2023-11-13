@@ -6,6 +6,8 @@ import 'package:logging/logging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
 
+final _logger = Logger('Main');
+
 void main() {
   Logger.root.level =
       Level.ALL; // Set this level to control which log messages to show
@@ -19,8 +21,11 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ConnectionState()),
-        Provider<MqttManager>.value(value: mqttManager),
+        ChangeNotifierProvider<MessageManager>.value(
+            value: mqttManager.messageManager),
+        ChangeNotifierProvider<ConnectionManager>.value(
+            value: mqttManager.connectionManager),
+        Provider<MqttManager>.value(value: mqttManager), // Provide MqttManager
       ],
       child: MyApp(),
     ),
@@ -74,8 +79,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  MqttManager? mqttManager;
-
   String _message = 'HI WORLD';
   String _brokerAddress = '192.168.86.1'; // Default broker address
 
@@ -86,6 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _brokerPortController = TextEditingController();
 
   final TextEditingController _clientIdController = TextEditingController();
+  MqttManager? mqttManager;
 
   void _incrementCounter() {
     setState(() {});
@@ -127,19 +131,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 _buildClientIdField(), // Add this line
               ],
             ),
-            ElevatedButton(
-              onPressed: () {
-                if (Provider.of<ConnectionState>(context, listen: false)
-                    .connected) {
-                  mqttManager?.disconnect();
-                } else {
-                  mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
-                      clientId: 'XXYYZZ');
-                }
+            Consumer<ConnectionManager>(
+              builder: (context, connectionManager, child) {
+                return ElevatedButton(
+                  onPressed: () {
+                    if (connectionManager.connected) {
+                      mqttManager?.disconnect();
+                    } else {
+                      _logger.info('DISCONNECT ELSE');
+                      mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
+                          clientId: 'XXYYZZ');
+                    }
+                  },
+                  child: Text(
+                      connectionManager.connected ? 'Disconnect' : 'Connect'),
+                );
               },
-              child: Text(Provider.of<ConnectionState>(context).connected
-                  ? 'Disconnect'
-                  : 'Connect'),
             ),
           ],
         ),
