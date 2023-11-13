@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
+import 'mqttmanager.dart';
+import 'package:provider/provider.dart';
 
 class MessageListPage extends StatefulWidget {
-  final List<String> messages;
-
-  MessageListPage({Key? key, required this.messages}) : super(key: key);
+  MessageListPage({Key? key}) : super(key: key);
 
   @override
   _MessageListPageState createState() => _MessageListPageState();
 }
 
 class _MessageListPageState extends State<MessageListPage> {
+  MqttManager? mqttManager;
   @override
+  void initState() {
+    super.initState();
+    mqttManager = Provider.of<MqttManager>(context, listen: false);
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('MQTT Messages'),
       ),
       body: ListView.builder(
-        itemCount: widget.messages.length,
+        itemCount: mqttManager?.messages.length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(widget.messages[index]),
+            title: Text(mqttManager?.messages[index] ?? ''),
           );
         },
       ),

@@ -3,25 +3,20 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:logging/logging.dart';
 
 class MqttManager {
-  final String serverAddress;
-  String clientId;
-  int serverPort;
-  final Function(bool) onConnectionChanged;
-  final Function(String) onMessageReceived;
+  List<String> _messages = [];
+  List<Function(String)> _messageCallbacks = [];
+  List<Function> _connectedCallbacks = [];
+  List<Function> _disconnectedCallbacks = [];
 
   MqttServerClient? client;
 
   final _logger = Logger('MqttManager');
 
-  MqttManager(
-      {required this.serverAddress,
-      required this.onConnectionChanged,
-      required this.onMessageReceived,
-      this.clientId = 'mQuack',
-      this.serverPort = 1883});
+  MqttManager() {}
 
-  Future<MqttServerClient> connectToBroker() async {
-    client = MqttServerClient(serverAddress, clientId);
+  Future<MqttServerClient> connectToBroker(String serverAddress, int serverPort,
+      {String? clientId}) async {
+    client = MqttServerClient(serverAddress, clientId ?? 'mQuack');
     client!.logging(on: false);
     client!.port = serverPort;
     client!.keepAlivePeriod = 60;
@@ -55,22 +50,50 @@ class MqttManager {
       final String newMessage =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
-      // Call the callback
-      onMessageReceived(newMessage);
+      // Add the new message to _messages
+      _messages.add(newMessage);
+
+      // Log the new message
+      _logger.info('Received message: $newMessage');
+
+      // Call all registered callbacks
+      for (var callback in _messageCallbacks) {
+        callback(newMessage);
+      }
     });
   }
+
+  void registerMessageCallback(Function(String) callback) {
+    _messageCallbacks.add(callback);
+  }
+
+  List<String> get messages => _messages;
 
   void disconnect() {
     client?.disconnect();
   }
 
+  void registerConnectedCallback(Function callback) {
+    _connectedCallbacks.add(callback);
+  }
+
+  void registerDisconnectedCallback(Function callback) {
+    _disconnectedCallbacks.add(callback);
+  }
+
   void onDisconnected() {
-    onConnectionChanged(false);
+    for (var callback in _disconnectedCallbacks) {
+      callback();
+    }
+
     _logger.info('MQTT client disconnected');
   }
 
   void onConnected() {
-    onConnectionChanged(true);
+    for (var callback in _connectedCallbacks) {
+      callback();
+    }
+    ;
     _logger.info('MQTT client connected');
     subscribeToAllTopics();
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'mquacktt.dart';
+import 'mqttmanager.dart';
 import 'messages.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,16 +12,23 @@ void main() {
   Logger.root.onRecord.listen((record) {
     print('${record.level.name}: ${record.time}: ${record.message}');
   });
+
+  // Instantiate the MqttManager here
+  MqttManager mqttManager = MqttManager();
+
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => ConnectionState(),
-      child: const MyApp(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => ConnectionState()),
+        Provider<MqttManager>.value(value: mqttManager),
+      ],
+      child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -68,9 +75,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   MqttManager? mqttManager;
+
   String _message = 'HI WORLD';
   String _brokerAddress = '192.168.86.1'; // Default broker address
-  List<String> _messages = [];
 
   final TextEditingController _brokerAddressController =
       TextEditingController();
@@ -90,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _brokerAddressController.text = _brokerAddress;
     _brokerPortController.text = _brokerPort.toString(); // Set the initial text
     _clientIdController.text = 'mQuack'; // Set the default value for ClientID
+    mqttManager = Provider.of<MqttManager>(context, listen: false);
   }
 
   @override
@@ -125,22 +133,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     .connected) {
                   mqttManager?.disconnect();
                 } else {
-                  mqttManager = MqttManager(
-                    serverAddress: _brokerAddress,
-                    serverPort: _brokerPort,
-                    clientId: 'XXYYZZ',
-                    onConnectionChanged: (connected) {
-                      Provider.of<ConnectionState>(context, listen: false)
-                          .connected = connected;
-                    },
-                    onMessageReceived: (message) {
-                      setState(() {
-                        _message = message;
-                        _messages.add(message);
-                      });
-                    },
-                  );
-                  mqttManager?.connectToBroker();
+                  mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
+                      clientId: 'XXYYZZ');
                 }
               },
               child: Text(Provider.of<ConnectionState>(context).connected
@@ -165,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => MessageListPage(messages: _messages),
+                    builder: (context) => MessageListPage(),
                   ),
                 );
               },
