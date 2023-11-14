@@ -81,22 +81,22 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: MyColumnWidget(mqttManager: mqttManager),
+        child: ConnectFormWidget(mqttManager: mqttManager),
       ),
       bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 0),
     );
   }
 }
 
-class MyColumnWidget extends StatefulWidget {
+class ConnectFormWidget extends StatefulWidget {
   final MqttManager? mqttManager;
-  MyColumnWidget({this.mqttManager});
+  ConnectFormWidget({this.mqttManager});
 
   @override
-  _MyColumnWidgetState createState() => _MyColumnWidgetState();
+  _ConnectFormWidgetState createState() => _ConnectFormWidgetState();
 }
 
-class _MyColumnWidgetState extends State<MyColumnWidget> {
+class _ConnectFormWidgetState extends State<ConnectFormWidget> {
   String _brokerAddress = '192.168.86.1'; // Default broker address
   final TextEditingController _brokerAddressController =
       TextEditingController();
@@ -105,6 +105,8 @@ class _MyColumnWidgetState extends State<MyColumnWidget> {
   final TextEditingController _brokerPortController = TextEditingController();
 
   final TextEditingController _clientIdController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>(); // Add this line
 
   @override
   void initState() {
@@ -117,36 +119,43 @@ class _MyColumnWidgetState extends State<MyColumnWidget> {
   @override
   Widget build(BuildContext context) {
     MqttManager? mqttManager = widget.mqttManager;
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Wrap(
-          direction: Axis.horizontal,
-          alignment: WrapAlignment.center,
-          children: <Widget>[
-            _buildBrokerAddressField(),
-            _buildPortField(),
-            _buildClientIdField(), // Add this line
-          ],
-        ),
-        Consumer<ConnectionManager>(
-          builder: (context, connectionManager, child) {
-            return ElevatedButton(
-              onPressed: () {
-                if (connectionManager.connected) {
-                  mqttManager?.disconnect();
-                } else {
-                  _logger.info('DISCONNECT ELSE');
-                  mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
-                      clientId: 'XXYYZZ');
-                }
-              },
-              child:
-                  Text(connectionManager.connected ? 'Disconnect' : 'Connect'),
-            );
-          },
-        ),
-      ],
+    return Form(
+      // Wrap the Column widget with a Form widget
+      key: _formKey, // Assign the GlobalKey to the Form widget
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.center,
+            children: <Widget>[
+              _buildBrokerAddressField(),
+              _buildPortField(),
+              _buildClientIdField(), // Add this line
+            ],
+          ),
+          Consumer<ConnectionManager>(
+            builder: (context, connectionManager, child) {
+              return ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    // Validate the form before proceeding
+                    if (connectionManager.connected) {
+                      mqttManager?.disconnect();
+                    } else {
+                      _logger.info('DISCONNECT ELSE');
+                      mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
+                          clientId: 'XXYYZZ');
+                    }
+                  }
+                },
+                child: Text(
+                    connectionManager.connected ? 'Disconnect' : 'Connect'),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
