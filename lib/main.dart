@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'mqttmanager.dart';
-import 'messages.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
+import 'sharedwidgets.dart';
 
 final _logger = Logger('Main');
 
@@ -46,20 +46,6 @@ class MyApp extends StatelessWidget {
       title: 'mQuack',
       theme: ThemeData(
         // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme:
             ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 1, 47, 12)),
         useMaterial3: true,
@@ -79,28 +65,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _message = 'HI WORLD';
-  String _brokerAddress = '192.168.86.1'; // Default broker address
-
-  final TextEditingController _brokerAddressController =
-      TextEditingController();
-
-  int _brokerPort = 1883; // Default broker port
-  final TextEditingController _brokerPortController = TextEditingController();
-
-  final TextEditingController _clientIdController = TextEditingController();
   MqttManager? mqttManager;
-
-  void _incrementCounter() {
-    setState(() {});
-  }
 
   @override
   void initState() {
     super.initState();
-    _brokerAddressController.text = _brokerAddress;
-    _brokerPortController.text = _brokerPort.toString(); // Set the initial text
-    _clientIdController.text = 'mQuack'; // Set the default value for ClientID
     mqttManager = Provider.of<MqttManager>(context, listen: false);
   }
 
@@ -112,73 +81,72 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: MyColumnWidget(mqttManager: mqttManager),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 0),
+    );
+  }
+}
+
+class MyColumnWidget extends StatefulWidget {
+  final MqttManager? mqttManager;
+  MyColumnWidget({this.mqttManager});
+
+  @override
+  _MyColumnWidgetState createState() => _MyColumnWidgetState();
+}
+
+class _MyColumnWidgetState extends State<MyColumnWidget> {
+  String _brokerAddress = '192.168.86.1'; // Default broker address
+  final TextEditingController _brokerAddressController =
+      TextEditingController();
+
+  int _brokerPort = 1883; // Default broker port
+  final TextEditingController _brokerPortController = TextEditingController();
+
+  final TextEditingController _clientIdController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _brokerAddressController.text = _brokerAddress;
+    _brokerPortController.text = _brokerPort.toString();
+    _clientIdController.text = 'mQuack';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    MqttManager? mqttManager = widget.mqttManager;
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Wrap(
+          direction: Axis.horizontal,
+          alignment: WrapAlignment.center,
           children: <Widget>[
-            Text(
-              _message,
-            ),
-            Text(
-              '',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            Wrap(
-              direction: Axis.horizontal,
-              alignment: WrapAlignment.center,
-              children: <Widget>[
-                _buildBrokerAddressField(),
-                _buildPortField(),
-                _buildClientIdField(), // Add this line
-              ],
-            ),
-            Consumer<ConnectionManager>(
-              builder: (context, connectionManager, child) {
-                return ElevatedButton(
-                  onPressed: () {
-                    if (connectionManager.connected) {
-                      mqttManager?.disconnect();
-                    } else {
-                      _logger.info('DISCONNECT ELSE');
-                      mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
-                          clientId: 'XXYYZZ');
-                    }
-                  },
-                  child: Text(
-                      connectionManager.connected ? 'Disconnect' : 'Connect'),
-                );
-              },
-            ),
+            _buildBrokerAddressField(),
+            _buildPortField(),
+            _buildClientIdField(), // Add this line
           ],
         ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Row(
-          children: <Widget>[
-            IconButton(
-              icon: Icon(Icons.home),
+        Consumer<ConnectionManager>(
+          builder: (context, connectionManager, child) {
+            return ElevatedButton(
               onPressed: () {
-                // You're already on the main page, so no need to navigate
+                if (connectionManager.connected) {
+                  mqttManager?.disconnect();
+                } else {
+                  _logger.info('DISCONNECT ELSE');
+                  mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
+                      clientId: 'XXYYZZ');
+                }
               },
-            ),
-            IconButton(
-              icon: Icon(Icons.message),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MessageListPage(),
-                  ),
-                );
-              },
-            ),
-          ],
+              child:
+                  Text(connectionManager.connected ? 'Disconnect' : 'Connect'),
+            );
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ),
+      ],
     );
   }
 
@@ -241,16 +209,5 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
     );
-  }
-}
-
-class ConnectionState extends ChangeNotifier {
-  bool _connected = false;
-
-  bool get connected => _connected;
-
-  set connected(bool value) {
-    _connected = value;
-    notifyListeners();
   }
 }

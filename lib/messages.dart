@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'mqttmanager.dart';
 import 'package:provider/provider.dart';
+import 'sharedwidgets.dart';
 
 class MessageListPage extends StatefulWidget {
   MessageListPage({Key? key}) : super(key: key);
@@ -32,24 +33,7 @@ class _MessageListPageState extends State<MessageListPage> {
               );
             },
           ),
-          bottomNavigationBar: BottomAppBar(
-            child: Row(
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.home),
-                  onPressed: () {
-                    Navigator.pop(context); // Go back to the main page
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.message),
-                  onPressed: () {
-                    // You're already on the messages page, so no need to navigate
-                  },
-                ),
-              ],
-            ),
-          ),
+          bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
         );
       },
     );
