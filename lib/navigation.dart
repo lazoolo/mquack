@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'messages.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -24,15 +23,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
         if (index != currentIndex) {
           switch (index) {
             case 0:
-              Navigator.popUntil(context, (route) => route.isFirst);
+              Navigator.pushReplacementNamed(context, '/connections');
               break;
             case 1:
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MessageListPage(),
-                ),
-              );
+              Navigator.pushReplacementNamed(context, '/messages');
               break;
           }
         }

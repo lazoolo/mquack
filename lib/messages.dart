@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'mqttmanager.dart';
 import 'package:provider/provider.dart';
-import 'sharedwidgets.dart';
+import 'navigation.dart';
 
 class MessageListPage extends StatefulWidget {
   MessageListPage({Key? key}) : super(key: key);
