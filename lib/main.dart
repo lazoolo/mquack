@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mquack/messages.dart';
 import 'package:provider/provider.dart';
+import 'navigation.dart';
 import 'mqttmanager.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -75,62 +76,11 @@ class _MyHomePageState extends State<MyHomePage> {
     mqttManager = Provider.of<MqttManager>(context, listen: false);
   }
 
-/*
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: ConnectFormWidget(mqttManager: mqttManager),
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 0),
-    );
-  }
-}
-*/
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text('MQTT Connections'),
-      ),
-      body: Row(
-        children: <Widget>[
-          Drawer(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: <Widget>[
-                ListTile(
-                  title: Text('Connections'),
-                  onTap: () {
-                    // Then navigate to the connections route
-                    Navigator.pushReplacementNamed(context, '/connections');
-                  },
-                ),
-                ListTile(
-                  title: Text('Messages'),
-                  onTap: () {
-                    // Then navigate to the messages route
-                    Navigator.pushReplacementNamed(context, '/messages');
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: ConnectFormWidget(mqttManager: mqttManager),
-            ),
-          ),
-        ],
-      ),
+    return ResponsiveLayout(
+      currentIndex: 0,
+      body: ConnectFormWidget(mqttManager: mqttManager),
     );
   }
 }
