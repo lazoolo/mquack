@@ -88,7 +88,7 @@ class ResponsiveLayout extends StatelessWidget {
             body: Row(
               children: [
                 Expanded(
-                  flex: 2,
+                  flex: 1,
                   child: Container(
                     color:
                         Colors.grey[200], // Change this to your desired color
@@ -114,7 +114,7 @@ class ResponsiveLayout extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  flex: 8,
+                  flex: 3,
                   child: Container(
                     child: body,
                   ),
