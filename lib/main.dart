@@ -131,8 +131,27 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
             direction: Axis.horizontal,
             alignment: WrapAlignment.center,
             children: <Widget>[
-              _buildBrokerAddressField(),
-              _buildPortField(),
+              LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  if (constraints.maxWidth > 800) {
+                    // If screen width is greater than 1000 pixels, display fields side by side
+                    return Row(
+                      children: <Widget>[
+                        Expanded(flex: 2, child: _buildBrokerAddressField()),
+                        Expanded(flex: 1, child: _buildPortField()),
+                      ],
+                    );
+                  } else {
+                    // If screen width is less than or equal to 1000 pixels, stack fields vertically
+                    return Column(
+                      children: <Widget>[
+                        _buildBrokerAddressField(),
+                        _buildPortField(),
+                      ],
+                    );
+                  }
+                },
+              ),
               _buildClientIdField(), // Add this line
             ],
           ),
@@ -163,7 +182,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
 
   Widget _buildBrokerAddressField() {
     return Container(
-      width: 200.w, // Set your desired maximum width here.
+      width: 0.8.sw, // Set your desired maximum width here.
       child: Padding(
         padding: EdgeInsets.all(8.0.w),
         child: TextField(
@@ -182,7 +201,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
 
   Widget _buildPortField() {
     return Container(
-      width: 200.w, // Set your desired maximum width here.
+      width: 0.8.sw, // Set your desired maximum width here.
       child: Padding(
         padding: EdgeInsets.all(8.0.w),
         child: TextField(
@@ -205,7 +224,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
 
   Widget _buildClientIdField() {
     return Container(
-      width: 200.w, // Set your desired maximum width here.
+      width: 0.8.sw, // Set your desired maximum width here.
       child: Padding(
         padding: EdgeInsets.all(8.0.w),
         child: TextField(
