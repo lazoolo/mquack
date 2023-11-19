@@ -52,24 +52,28 @@ class ResponsiveLayout extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               title: Text('MQTT Connections'),
             ),
-            drawer: Container(
-              color: Colors.grey[200], // Change this to your desired color
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: <Widget>[
-                  ListTile(
-                    title: Text('Connections'),
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, '/connections');
-                    },
-                  ),
-                  ListTile(
-                    title: Text('Messages'),
-                    onTap: () {
-                      Navigator.pushReplacementNamed(context, '/messages');
-                    },
-                  ),
-                ],
+            drawer: SizedBox(
+              width: MediaQuery.of(context).size.width *
+                  0.8, // Set the drawer width to 80% of the screen width
+              child: Container(
+                color: Colors.grey[200], // Change this to your desired color
+                child: ListView(
+                  padding: EdgeInsets.zero,
+                  children: <Widget>[
+                    ListTile(
+                      title: Text('Connections'),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/connections');
+                      },
+                    ),
+                    ListTile(
+                      title: Text('Messages'),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/messages');
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
             body: Container(
