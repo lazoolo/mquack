@@ -73,7 +73,10 @@ class ResponsiveLayout extends StatelessWidget {
               ),
             ),
             body: Container(
-              child: body,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: body,
+              ),
             ),
             bottomNavigationBar:
                 CustomBottomNavigationBar(currentIndex: currentIndex),
@@ -116,7 +119,10 @@ class ResponsiveLayout extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: Container(
-                    child: body,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: body,
+                    ),
                   ),
                 ),
               ],

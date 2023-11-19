@@ -94,13 +94,15 @@ class ConnectFormWidget extends StatefulWidget {
 }
 
 class _ConnectFormWidgetState extends State<ConnectFormWidget> {
-  String _brokerAddress = '192.168.86.1'; // Default broker address
+  MqttManager? mqttManager;
+  String _brokerAddress = ''; // Default broker address
   final TextEditingController _brokerAddressController =
       TextEditingController();
 
   int _brokerPort = 1883; // Default broker port
   final TextEditingController _brokerPortController = TextEditingController();
 
+  String _clientId = 'mQuack';
   final TextEditingController _clientIdController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>(); // Add this line
@@ -108,14 +110,17 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
   @override
   void initState() {
     super.initState();
+    mqttManager = widget.mqttManager;
+    _brokerAddress = mqttManager?.client?.server ?? '';
+    _brokerPort = mqttManager?.client?.port ?? 1883;
+    _clientId = mqttManager?.client?.clientIdentifier ?? 'mQuack';
     _brokerAddressController.text = _brokerAddress;
     _brokerPortController.text = _brokerPort.toString();
-    _clientIdController.text = 'mQuack';
+    _clientIdController.text = _clientId;
   }
 
   @override
   Widget build(BuildContext context) {
-    MqttManager? mqttManager = widget.mqttManager;
     return Form(
       // Wrap the Column widget with a Form widget
       key: _formKey, // Assign the GlobalKey to the Form widget
@@ -142,7 +147,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
                     } else {
                       _logger.info('DISCONNECT ELSE');
                       mqttManager?.connectToBroker(_brokerAddress, _brokerPort,
-                          clientId: 'XXYYZZ');
+                          clientId: _clientId);
                     }
                   }
                 },
@@ -211,6 +216,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
           ),
           onChanged: (value) {
             // Update your client ID here
+            _clientId = value;
           },
         ),
       ),
