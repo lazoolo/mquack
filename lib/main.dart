@@ -125,7 +125,7 @@ class _ConnectFormWidgetState extends State<ConnectFormWidget> {
       // Wrap the Column widget with a Form widget
       key: _formKey, // Assign the GlobalKey to the Form widget
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Wrap(
             direction: Axis.horizontal,
