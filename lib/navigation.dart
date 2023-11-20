@@ -47,7 +47,8 @@ class ResponsiveLayout extends StatelessWidget {
       builder: (BuildContext context, BoxConstraints constraints) {
         if (constraints.maxWidth < 600) {
           // Mobile layout with temporary drawer
-          return Scaffold(
+          return SafeArea(
+              child: Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
               title: Text('MQTT Connections'),
@@ -84,7 +85,7 @@ class ResponsiveLayout extends StatelessWidget {
             ),
             bottomNavigationBar:
                 CustomBottomNavigationBar(currentIndex: currentIndex),
-          );
+          ));
         } else {
           // Desktop layout with permanent drawer
           return Scaffold(
