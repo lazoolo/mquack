@@ -25,13 +25,58 @@ class _MessageListPageState extends State<MessageListPage> {
       currentIndex: 1,
       body: Consumer<MessageManager>(
         builder: (context, mqttManager, child) {
-          return ListView.builder(
-            itemCount: mqttManager.messages.length,
-            itemBuilder: (context, index) {
-              return ListTile(
-                title: Text(mqttManager.messages[index]),
-              );
-            },
+          return Column(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8.0),
+                color: Colors.blue,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child:
+                          Text('Topic', style: TextStyle(color: Colors.white)),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding:
+                            EdgeInsets.only(left: 10), // Add left padding here
+                        child: Text('Payload',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: mqttManager.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = mqttManager
+                        .messages[mqttManager.messages.length - index - 1];
+                    return Container(
+                      color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(message.topic),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: 10), // Add left padding here
+                                child: Text(message.payload),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),

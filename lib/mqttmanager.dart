@@ -4,8 +4,9 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:logging/logging.dart';
 
 class MqttManager {
-  List<String> _messages = [];
-  List<String> get messages => _messages;
+  List<Message> _messages = [];
+
+  List<Message> get messages => _messages;
 
   final MessageManager messageManager = MessageManager();
   final ConnectionManager connectionManager = ConnectionManager();
@@ -50,8 +51,10 @@ class MqttManager {
       final String newMessage =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
 
+      final String topic = c[0].topic;
+
       // Add the new message to _messages
-      messageManager.addMessage(newMessage);
+      messageManager.addMessage(topic, newMessage);
 
       // Log the new message
       _logger.info('Received message: $newMessage');
@@ -84,13 +87,20 @@ class MqttManager {
   }
 }
 
+class Message {
+  final String topic;
+  final String payload;
+
+  Message(this.topic, this.payload);
+}
+
 class MessageManager with ChangeNotifier {
-  List<String> _messages = [];
+  List<Message> _messages = [];
 
-  List<String> get messages => _messages;
+  List<Message> get messages => _messages;
 
-  void addMessage(String message) {
-    _messages.add(message);
+  void addMessage(String topic, String payload) {
+    _messages.add(Message(topic, payload));
     notifyListeners(); // Notify all listeners about the update
   }
 }
