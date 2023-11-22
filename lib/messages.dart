@@ -63,17 +63,7 @@ class _MessageListPageState extends State<MessageListPage> {
                                 BorderRadius.vertical(top: Radius.circular(10)),
                           ),
                           builder: (BuildContext context) {
-                            return DraggableScrollableSheet(
-                              initialChildSize:
-                                  0.65, // This value is set to 65% of screen height
-                              minChildSize: 0.65, // 65% of screen height
-                              maxChildSize: 1, // 100% of screen height
-                              builder: (BuildContext context,
-                                  ScrollController scrollController) {
-                                return MessageDetailBottomSheet(
-                                    message: message);
-                              },
-                            );
+                            return MessageDetailBottomSheet(message: message);
                           },
                         );
                       },
@@ -109,6 +99,7 @@ class _MessageListPageState extends State<MessageListPage> {
   }
 }
 
+// ...
 class MessageDetailBottomSheet extends StatelessWidget {
   final Message message;
 
@@ -117,16 +108,17 @@ class MessageDetailBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 2 / 3,
       padding: EdgeInsets.all(10.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text('Topic: ${message.topic}', style: TextStyle(fontSize: 18.0)),
-          SizedBox(height: 10),
-          Text('Payload: ${message.payload}', style: TextStyle(fontSize: 18.0)),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text('Topic: ${message.topic}', style: TextStyle(fontSize: 18.0)),
+            SizedBox(height: 10),
+            Text('Payload: ${message.payload}',
+                style: TextStyle(fontSize: 18.0)),
+          ],
+        ),
       ),
     );
   }
