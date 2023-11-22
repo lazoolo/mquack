@@ -53,23 +53,48 @@ class _MessageListPageState extends State<MessageListPage> {
                   itemBuilder: (context, index) {
                     final message = mqttManager
                         .messages[mqttManager.messages.length - index - 1];
-                    return Container(
-                      color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(message.topic),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    left: 10), // Add left padding here
-                                child: Text(message.payload),
+                    return GestureDetector(
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.vertical(top: Radius.circular(10)),
+                          ),
+                          builder: (BuildContext context) {
+                            return DraggableScrollableSheet(
+                              initialChildSize:
+                                  0.65, // This value is set to 65% of screen height
+                              minChildSize: 0.65, // 65% of screen height
+                              maxChildSize: 1, // 100% of screen height
+                              builder: (BuildContext context,
+                                  ScrollController scrollController) {
+                                return MessageDetailBottomSheet(
+                                    message: message);
+                              },
+                            );
+                          },
+                        );
+                      },
+                      child: Container(
+                        color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(message.topic),
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10), // Add left padding here
+                                  child: Text(message.payload),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -79,6 +104,29 @@ class _MessageListPageState extends State<MessageListPage> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+class MessageDetailBottomSheet extends StatelessWidget {
+  final Message message;
+
+  MessageDetailBottomSheet({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 2 / 3,
+      padding: EdgeInsets.all(10.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text('Topic: ${message.topic}', style: TextStyle(fontSize: 18.0)),
+          SizedBox(height: 10),
+          Text('Payload: ${message.payload}', style: TextStyle(fontSize: 18.0)),
+        ],
       ),
     );
   }
