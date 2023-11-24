@@ -99,7 +99,6 @@ class _MessageListPageState extends State<MessageListPage> {
   }
 }
 
-// ...
 class MessageDetailBottomSheet extends StatelessWidget {
   final Message message;
 
@@ -108,14 +107,18 @@ class MessageDetailBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: MediaQuery.of(context).size.width, // Full screen width
+      height:
+          MediaQuery.of(context).size.height * 2 / 3, // 2/3 of screen height
       padding: EdgeInsets.all(10.0),
       child: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('Topic: ${message.topic}', style: TextStyle(fontSize: 18.0)),
+            SelectableText('Topic: ${message.topic}',
+                style: TextStyle(fontSize: 18.0)),
             SizedBox(height: 10),
-            Text('Payload: ${message.payload}',
+            SelectableText('Payload:\n${message.payload}',
                 style: TextStyle(fontSize: 18.0)),
           ],
         ),
