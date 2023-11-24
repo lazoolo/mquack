@@ -8,7 +8,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: currentIndex,
+      currentIndex: (currentIndex >= 0 && currentIndex <= 1) ? currentIndex : 0,
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -73,6 +73,12 @@ class ResponsiveLayout extends StatelessWidget {
                         Navigator.pushReplacementNamed(context, '/messages');
                       },
                     ),
+                    ListTile(
+                      title: Text('Logs'),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/logs');
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -115,6 +121,12 @@ class ResponsiveLayout extends StatelessWidget {
                           onTap: () {
                             Navigator.pushReplacementNamed(
                                 context, '/messages');
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Logs'),
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, '/logs');
                           },
                         ),
                       ],

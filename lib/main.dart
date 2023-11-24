@@ -6,10 +6,12 @@ import 'mqttmanager.dart';
 import 'package:logging/logging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter/services.dart';
+import 'logs.dart';
 
 final _logger = Logger('Main');
 
 void main() {
+  final logManager = LogManager();
   Logger.root.level =
       Level.ALL; // Set this level to control which log messages to show
   Logger.root.onRecord.listen((record) {
@@ -27,6 +29,7 @@ void main() {
         ChangeNotifierProvider<ConnectionManager>.value(
             value: mqttManager.connectionManager),
         Provider<MqttManager>.value(value: mqttManager), // Provide MqttManager
+        Provider<LogManager>.value(value: logManager), // Add this line
       ],
       child: MyApp(),
     ),
@@ -55,6 +58,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/connections': (context) => MyHomePage(),
         '/messages': (context) => MessageListPage(),
+        '/logs': (context) => LogsPage(),
       },
     );
   }

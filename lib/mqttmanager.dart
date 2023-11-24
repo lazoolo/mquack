@@ -83,7 +83,7 @@ class MqttManager {
 
   Future<void> subscribeToAllTopics() async {
     _logger.info('Subscribing to all topics');
-    client!.subscribe('#', MqttQos.atMostOnce);
+    client!.subscribe('testtopic/#', MqttQos.atMostOnce);
   }
 }
 
