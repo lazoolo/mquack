@@ -57,7 +57,7 @@ class MqttManager {
       messageManager.addMessage(topic, newMessage);
 
       // Log the new message
-      _logger.info('Received message: $newMessage');
+      _logger.info('Received topic: $topic, message: $newMessage');
     });
   }
 
@@ -78,7 +78,7 @@ class MqttManager {
   }
 
   void onSubscribed(String topic) {
-    _logger.info('Subscribed to topic: ');
+    _logger.info('Subscribed to topic: $topic');
   }
 
   Future<void> subscribeToAllTopics() async {

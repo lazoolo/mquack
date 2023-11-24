@@ -30,10 +30,19 @@ class _LogsPageState extends State<LogsPage> {
     super.initState();
     logManager = Provider.of<LogManager>(context, listen: false);
     logManager.onLog = (log) {
-      setState(() {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      });
+      if (mounted) {
+        // Check if the widget is still in the widget tree
+        setState(() {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        });
+      }
     };
+  }
+
+  @override
+  void dispose() {
+    logManager.onLog = null; // Remove the listener
+    super.dispose();
   }
 
   @override
