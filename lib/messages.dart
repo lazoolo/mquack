@@ -12,6 +12,7 @@ class MessageListPage extends StatefulWidget {
 
 class _MessageListPageState extends State<MessageListPage> {
   MqttManager? mqttManager;
+  final ValueNotifier<String> _searchTextNotifier = ValueNotifier<String>('');
 
   @override
   void initState() {
@@ -23,77 +24,58 @@ class _MessageListPageState extends State<MessageListPage> {
   Widget build(BuildContext context) {
     return ResponsiveLayout(
       currentIndex: 1,
-      body: Consumer<MessageManager>(
-        builder: (context, mqttManager, child) {
-          return Column(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8.0),
-                color: Colors.blue,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child:
-                          Text('Topic', style: TextStyle(color: Colors.white)),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding:
-                            EdgeInsets.only(left: 10), // Add left padding here
-                        child: Text('Payload',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                    ),
-                  ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              onChanged: (value) {
+                _searchTextNotifier.value = value;
+              },
+              decoration: InputDecoration(
+                labelText: "Search",
+                hintText: "Search",
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: mqttManager.messages.length,
-                  itemBuilder: (context, index) {
-                    final message = mqttManager
-                        .messages[mqttManager.messages.length - index - 1];
-                    return GestureDetector(
-                      onTap: () {
-                        showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(10)),
-                          ),
-                          builder: (BuildContext context) {
-                            return MessageDetailBottomSheet(message: message);
-                          },
-                        );
-                      },
-                      child: Container(
-                        color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(message.topic),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 10), // Add left padding here
-                                  child: Text(message.payload),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.all(8.0),
+            color: Colors.blue,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('Topic', style: TextStyle(color: Colors.white)),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10), // Add left padding here
+                    child:
+                        Text('Payload', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Consumer<MessageManager>(
+              builder: (context, mqttManager, child) {
+                return ValueListenableBuilder<String>(
+                  valueListenable: _searchTextNotifier,
+                  builder: (context, searchText, child) {
+                    return FilterableListView(
+                      messages: mqttManager.messages,
+                      searchText: searchText,
                     );
                   },
-                ),
-              ),
-            ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -123,6 +105,61 @@ class MessageDetailBottomSheet extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class FilterableListView extends StatelessWidget {
+  final List<Message> messages;
+  final String searchText;
+
+  FilterableListView({required this.messages, required this.searchText});
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredMessages = messages
+        .where((message) => message.payload.contains(searchText))
+        .toList();
+
+    return ListView.builder(
+      itemCount: filteredMessages.length,
+      itemBuilder: (context, index) {
+        final message = filteredMessages[filteredMessages.length - index - 1];
+        return GestureDetector(
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              ),
+              builder: (BuildContext context) {
+                return MessageDetailBottomSheet(message: message);
+              },
+            );
+          },
+          child: Container(
+            color: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(message.topic),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.only(left: 10), // Add left padding here
+                      child: Text(message.payload),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
