@@ -41,6 +41,20 @@ class ResponsiveLayout extends StatelessWidget {
 
   const ResponsiveLayout({required this.currentIndex, required this.body});
 
+  String getTitle(BuildContext context) {
+    String routeName = ModalRoute.of(context)?.settings.name ?? '/connections';
+    switch (routeName) {
+      case '/connections':
+        return 'Connections';
+      case '/messages':
+        return 'Messages';
+      case '/logs':
+        return 'Logs';
+      default:
+        return 'MQTT Connections';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -51,7 +65,7 @@ class ResponsiveLayout extends StatelessWidget {
               child: Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text('MQTT Connections'),
+              title: Text(getTitle(context)),
             ),
             drawer: SizedBox(
               width: MediaQuery.of(context).size.width *
@@ -97,44 +111,39 @@ class ResponsiveLayout extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: Text('MQTT Connections'),
+              title: Text(getTitle(context)),
             ),
             body: Row(
               children: [
-                Expanded(
-                  flex: 1,
-                  child: Container(
-                    color:
-                        Colors.grey[200], // Change this to your desired color
-                    child: ListView(
-                      padding: EdgeInsets.zero,
-                      children: <Widget>[
-                        ListTile(
-                          title: Text('Connections'),
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/connections');
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Messages'),
-                          onTap: () {
-                            Navigator.pushReplacementNamed(
-                                context, '/messages');
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Logs'),
-                          onTap: () {
-                            Navigator.pushReplacementNamed(context, '/logs');
-                          },
-                        ),
-                      ],
-                    ),
+                Container(
+                  width: 150,
+                  color: Colors.grey[200], // Change this to your desired color
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: <Widget>[
+                      ListTile(
+                        title: Text('Connections'),
+                        onTap: () {
+                          Navigator.pushReplacementNamed(
+                              context, '/connections');
+                        },
+                      ),
+                      ListTile(
+                        title: Text('Messages'),
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/messages');
+                        },
+                      ),
+                      ListTile(
+                        title: Text('Logs'),
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/logs');
+                        },
+                      ),
+                    ],
                   ),
                 ),
                 Expanded(
-                  flex: 3,
                   child: Container(
                     child: Align(
                       alignment: Alignment.topCenter,
