@@ -151,6 +151,13 @@ class ResponsiveLayout extends StatelessWidget {
                     ),
                   ),
                 ),
+                Container(
+                  width: 150,
+                  color: Colors.grey[300], // Change this to your desired color
+                  child: Center(
+                      child: Text(
+                          'Right Panel')), // Add your right panel widget here
+                ),
               ],
             ),
           );
