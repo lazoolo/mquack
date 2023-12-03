@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:multi_split_view/multi_split_view.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -144,19 +145,33 @@ class ResponsiveLayout extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: Container(
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: body,
+                  child: MultiSplitViewTheme(
+                    data: MultiSplitViewThemeData(
+                        dividerPainter: DividerPainters.grooved1(
+                            color: Colors.indigo[100]!,
+                            highlightedColor: Colors.indigo[900]!)),
+                    child: MultiSplitView(
+                      axis: Axis.horizontal,
+                      children: [
+                        Container(
+                          //main content
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: body,
+                          ),
+                        ),
+                        Container(
+                          //right panel
+                          width: 150,
+                          color: Colors
+                              .grey[300], // Change this to your desired color
+                          child: Center(
+                              child: Text(
+                                  'Right Panel')), // Add your right panel widget here
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                Container(
-                  width: 150,
-                  color: Colors.grey[300], // Change this to your desired color
-                  child: Center(
-                      child: Text(
-                          'Right Panel')), // Add your right panel widget here
                 ),
               ],
             ),
